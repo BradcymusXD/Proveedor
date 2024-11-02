@@ -1,0 +1,125 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProveedorApp extends JFrame {
+    private List<Proveedor> proveedores = new ArrayList<>();
+    private DefaultTableModel model;
+    private JTable table;
+
+    public ProveedorApp() {
+        setTitle("Gestión de Proveedores");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Modelo de la tabla
+        model = new DefaultTableModel();
+        model.addColumn("RUC");
+        model.addColumn("Razón Social");
+        model.addColumn("E-mail");
+        model.addColumn("Teléfono");
+        model.addColumn("Editar");
+
+        // Tabla
+        table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane);
+
+        // Botón para agregar proveedor
+        JButton btnAgregar = new JButton("Agregar Proveedor");
+        btnAgregar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                agregarProveedor();
+            }
+        });
+        add(btnAgregar, "South");
+
+        cargarProveedores();
+    }
+
+    private void agregarProveedor() {
+        String ruc = JOptionPane.showInputDialog("Ingrese RUC:");
+        String razonSocial = JOptionPane.showInputDialog("Ingrese Razón Social:");
+        String email = JOptionPane.showInputDialog("Ingrese E-mail:");
+        String telefono = JOptionPane.showInputDialog("Ingrese Teléfono:");
+
+        Proveedor proveedor = new Proveedor(ruc, razonSocial, email, telefono);
+        proveedores.add(proveedor);
+        model.addRow(new Object[]{ruc, razonSocial, email, telefono, "Editar"});
+    }
+
+    private void cargarProveedores() {
+        for (Proveedor proveedor : proveedores) {
+            model.addRow(new Object[]{
+                proveedor.getRuc(),
+                proveedor.getRazonSocial(),
+                proveedor.getEmail(),
+                proveedor.getTelefono(),
+                "Editar"
+            });
+        }
+
+        table.getColumn("Editar").setCellRenderer((table, value, isSelected, hasFocus, row, column) -> {
+            JButton button = new JButton("Editar");
+            button.addActionListener(e -> editarProveedor(row));
+            return button;
+        });
+    }
+
+    private void editarProveedor(int rowIndex) {
+        Proveedor proveedor = proveedores.get(rowIndex);
+        String nuevoRuc = JOptionPane.showInputDialog("Ingrese nuevo RUC:", proveedor.getRuc());
+        String nuevaRazonSocial = JOptionPane.showInputDialog("Ingrese nueva Razón Social:", proveedor.getRazonSocial());
+        String nuevoEmail = JOptionPane.showInputDialog("Ingrese nuevo E-mail:", proveedor.getEmail());
+        String nuevoTelefono = JOptionPane.showInputDialog("Ingrese nuevo Teléfono:", proveedor.getTelefono());
+
+        proveedor.setRuc(nuevoRuc);
+        proveedor.setRazonSocial(nuevaRazonSocial);
+        proveedor.setEmail(nuevoEmail);
+        proveedor.setTelefono(nuevoTelefono);
+
+        // Actualiza la tabla
+        model.setValueAt(nuevoRuc, rowIndex, 0);
+        model.setValueAt(nuevaRazonSocial, rowIndex, 1);
+        model.setValueAt(nuevoEmail, rowIndex, 2);
+        model.setValueAt(nuevoTelefono, rowIndex, 3);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new ProveedorApp().setVisible(true);
+        });
+    }
+}
+
+// Clase Proveedor
+class Proveedor {
+    private String ruc;
+    private String razonSocial;
+    private String email;
+    private String telefono;
+
+    public Proveedor(String ruc, String razonSocial, String email, String telefono) {
+        this.ruc = ruc;
+        this.razonSocial = razonSocial;
+        this.email = email;
+        this.telefono = telefono;
+    }
+
+    public String getRuc() { return ruc; }
+    public void setRuc(String ruc) { this.ruc = ruc; }
+
+    public String getRazonSocial() { return razonSocial; }
+    public void setRazonSocial(String razonSocial) { this.razonSocial = razonSocial; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+}
